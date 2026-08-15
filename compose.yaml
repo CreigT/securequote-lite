@@ -1,0 +1,20 @@
+services:
+  securequote-lite:
+    build: .
+    ports:
+      - "8010:8010"
+    environment:
+      SECUREQUOTE_LITE_AI_PROVIDER: ${SECUREQUOTE_LITE_AI_PROVIDER:?Select openai or gemini}
+      SECUREQUOTE_LITE_MAX_UPLOAD_BYTES: ${SECUREQUOTE_LITE_MAX_UPLOAD_BYTES:-5242880}
+      SECUREQUOTE_LITE_AUDIT_LOG: /app/applications/securequote_lite/logs/audit.jsonl
+      AI_GATEWAY_TIMEOUT_SECONDS: ${AI_GATEWAY_TIMEOUT_SECONDS:-30}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-}
+    volumes:
+      - securequote-audit:/app/applications/securequote_lite/logs
+    restart: unless-stopped
+
+volumes:
+  securequote-audit:

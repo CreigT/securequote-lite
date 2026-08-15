@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="SecureQuote Lite service quote intake">
+  <title>SecureQuote Lite | Intake + Context</title>
+  <link rel="stylesheet" href="/securequote/assets/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/securequote" aria-label="SecureQuote Lite home"><span class="mark">H</span><span>HybridSecure <strong>SecureQuote Lite</strong></span></a>
+    <span class="phase">Screen 1 · Intake + Context</span>
+  </header>
+  <main>
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow">Secure, review-first quoting</p>
+      <h1 id="page-title">Start with the facts.<br><em>Keep people in control.</em></h1>
+      <p>Capture customer and job context in a structured draft. This phase validates your request but does not generate a quote or contact the customer.</p>
+      <div class="principle" aria-label="SecureQuote operating principle">
+        <span>AI recommends</span><span>Policy checks</span><span>Humans authorize</span><span>Everything is auditable</span>
+      </div>
+    </section>
+
+    <section class="form-shell" aria-labelledby="form-title">
+      <div class="form-heading"><div><p class="eyebrow">Step 01</p><h2 id="form-title">Intake + Context</h2></div><p>Required fields are marked <span aria-hidden="true">*</span><span class="sr-only">with an asterisk</span>.</p></div>
+      <div id="form-status" class="status" role="status" aria-live="polite" tabindex="-1"></div>
+      <form id="quote-form" enctype="multipart/form-data" novalidate>
+        <fieldset>
+          <legend><span>01</span> Customer</legend>
+          <div class="grid three">
+            <label>Full name <b>*</b><input name="full_name" autocomplete="name" minlength="2" maxlength="100" required></label>
+            <label>Email <b>*</b><input type="email" name="email" autocomplete="email" maxlength="320" required></label>
+            <label>Phone <b>*</b><input type="tel" name="phone" autocomplete="tel" minlength="7" maxlength="30" required></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend><span>02</span> Job</legend>
+          <div class="grid two">
+            <label>Service / job type <b>*</b><input name="job_type" maxlength="120" placeholder="e.g. Commercial HVAC repair" required></label>
+            <label>Service location <b>*</b><input name="service_location" autocomplete="street-address" maxlength="240" required></label>
+            <label>Urgency <b>*</b><select name="urgency" required><option value="">Select urgency</option><option value="flexible">Flexible</option><option value="standard">Standard</option><option value="urgent">Urgent</option></select></label>
+            <label>Property / site type <b>*</b><input name="property_type" maxlength="80" placeholder="e.g. Office, residence, warehouse" required></label>
+            <label>Preferred timing <b>*</b><input name="preferred_timing" maxlength="120" placeholder="e.g. Weekday mornings" required></label>
+          </div>
+          <label class="wide">Structured job details <b>*</b><textarea name="scope_summary" minlength="10" maxlength="2000" rows="5" placeholder="Describe the issue, requested work, dimensions, quantities, and relevant site constraints." required></textarea></label>
+          <label class="wide">Additional notes <span>Optional</span><textarea name="notes" maxlength="3000" rows="4" placeholder="Access instructions or context that may affect the quote."></textarea></label>
+        </fieldset>
+
+        <fieldset>
+          <legend><span>03</span> Uploads <small>Optional</small></legend>
+          <p class="upload-note">Files are validated in memory and are not retained in this phase. Maximum 5 MB each.</p>
+          <div class="grid two">
+            <label class="upload">Photo <span>JPG, PNG, or WebP</span><input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"></label>
+            <label class="upload">Document <span>PDF or DOCX</span><input type="file" name="document" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"></label>
+          </div>
+        </fieldset>
+
+        <div class="action-row">
+          <p>Analyze validates and creates a secure draft, then opens internal review. AI runs only when server configuration is available.</p>
+          <button type="submit">Analyze <span aria-hidden="true">→</span></button>
+        </div>
+      </form>
+    </section>
+  </main>
+  <footer><span>SecureQuote Lite · Human authorization required</span><strong>Sponsored by CREIGNIFICENT LLC</strong></footer>
+  <script src="/securequote/assets/app.js" defer></script>
+</body>
+</html>
