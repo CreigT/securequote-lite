@@ -13,6 +13,9 @@ class Signup(BaseModel): business_name:str; email:EmailStr; password:str
 class Login(BaseModel): email:EmailStr; password:str
 class Intake(BaseModel): customer_name:str; customer_email:EmailStr; customer_phone:str; job_type:str; service_location:str; scope_summary:str; preferred_timing:str=""; notes:str=""
 class Approval(BaseModel): final_price:Decimal; summary:str="Approved service quote"
+@app.get("/",response_class=HTMLResponse)
+def home():
+ return """<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>SecureQuote Lite</title><style>body{margin:0;font-family:system-ui;background:#07111f;color:#fff}main{max-width:760px;margin:auto;padding:72px 24px}.brand{font-size:14px;letter-spacing:.12em;color:#7dd3fc}.card{margin-top:32px;padding:28px;border:1px solid #243244;border-radius:20px;background:#0d1b2a}h1{font-size:48px;margin:12px 0}p{color:#b8c4d4;line-height:1.6}.pill{display:inline-block;padding:9px 13px;border-radius:999px;background:#12334b;color:#7dd3fc}a{color:#7dd3fc}.foot{margin-top:48px;font-size:13px;color:#718096}</style></head><body><main><div class="brand">SECUREQUOTE LITE</div><h1>Quote securely. Approve confidently. Get paid.</h1><p>AI-assisted quoting for service businesses with human approval, customer acceptance, payment verification and an auditable workflow.</p><div class="card"><span class="pill">Production V1</span><h2>SecureQuote Lite is online.</h2><p>The application API is running. Business onboarding, persistent storage, payments and email require the configured production services.</p><p><a href="/securequote/health">View system health</a></p></div><div class="foot">Sponsored by CREIGNIFICENT LLC.</div></main></body></html>"""
 @app.on_event("startup")
 def startup():
  if os.getenv("SECUREQUOTE_AUTO_MIGRATE","false").lower()=="true": init_db()
