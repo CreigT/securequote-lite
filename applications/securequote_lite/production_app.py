@@ -32,6 +32,15 @@ def create_quote(v:Intake,u=Depends(current_user)):
  qid=str(uuid4()); p=v.model_dump(mode="json")
  with db() as c:c.execute(text("INSERT INTO quotes(id,tenant_id,customer_name,customer_email,customer_phone,payload) VALUES(:id,:t,:n,:e,:p,CAST(:j AS JSONB))"),{"id":qid,"t":u["tid"],"n":v.customer_name,"e":v.customer_email,"p":v.customer_phone,"j":json.dumps(p)})
  audit(u["tid"],"QUOTE_CREATED",qid,u["email"]); return {"id":qid,"state":"NEW"}
+@app.get("/securequote/api/audit")
+def list_audit(u=Depends(current_user)):
+ with db() as c:rows=c.execute(text("SELECT quote_id,event,actor,data,created_at FROM audit_events WHERE tenant_id=:t ORDER BY created_at DESC LIMIT 200"),{"t":u["tid"]}).mappings().all()
+ return [dict(r) for r in rows]
+@app.get("/securequote/api/account")
+def account(u=Depends(current_user)):
+ with db() as c:r=rowdict(c.execute(text("SELECT id,name,subscription_status FROM tenants WHERE id=:t"),{"t":u["tid"]}).first())
+ if not r: raise HTTPException(404,"Tenant not found")
+ return r
 @app.get("/securequote/api/quotes")
 def list_quotes(u=Depends(current_user)):
  with db() as c:rows=c.execute(text("SELECT id,customer_name,customer_email,state,final_price,payment_status,created_at FROM quotes WHERE tenant_id=:t ORDER BY created_at DESC"),{"t":u["tid"]}).mappings().all()
@@ -74,7 +83,12 @@ async def webhook(request:Request):
  if not ts or not v1 or abs(time.time()-int(ts))>300: raise HTTPException(400,"Invalid Stripe signature")
  expected=hmac.new(WEBHOOK_SECRET.encode(),ts.encode()+b"."+raw,hashlib.sha256).hexdigest()
  if not hmac.compare_digest(expected,v1): raise HTTPException(400,"Invalid Stripe signature")
- event=json.loads(raw); obj=event.get("data",{}).get("object",{})
+ event=json.loads(raw); obj=event.get("data",{}).get("object",{}); event_id=event.get("id")
+ if not event_id: raise HTTPException(400,"Stripe event id missing")
+ with db() as c:
+  exists=c.execute(text("SELECT 1 FROM stripe_events WHERE id=:id"),{"id":event_id}).first()
+  if exists:return {"received":True,"duplicate":True}
+  c.execute(text("INSERT INTO stripe_events(id,event_type) VALUES(:id,:t)"),{"id":event_id,"t":event.get("type","unknown")})
  if event.get("type")=="checkout.session.completed":
   ref=obj.get("client_reference_id"); mode=obj.get("mode")
   with db() as c:
