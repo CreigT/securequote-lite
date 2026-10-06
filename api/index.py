@@ -1,0 +1,1 @@
+from applications.securequote_lite.production_app import app

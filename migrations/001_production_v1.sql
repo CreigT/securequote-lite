@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS tenants(id UUID PRIMARY KEY,name TEXT NOT NULL,stripe_customer_id TEXT,subscription_status TEXT NOT NULL DEFAULT 'inactive',created_at TIMESTAMPTZ NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS users(id UUID PRIMARY KEY,tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,email TEXT UNIQUE NOT NULL,password_hash TEXT NOT NULL,role TEXT NOT NULL DEFAULT 'owner',created_at TIMESTAMPTZ NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS quotes(id UUID PRIMARY KEY,tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,customer_name TEXT NOT NULL,customer_email TEXT NOT NULL,customer_phone TEXT NOT NULL,payload JSONB NOT NULL,state TEXT NOT NULL DEFAULT 'NEW',ai_recommendation JSONB,human_version JSONB,final_price NUMERIC(12,2),public_token TEXT UNIQUE,stripe_session_id TEXT,payment_status TEXT NOT NULL DEFAULT 'unpaid',created_at TIMESTAMPTZ NOT NULL DEFAULT now(),updated_at TIMESTAMPTZ NOT NULL DEFAULT now());
+CREATE INDEX IF NOT EXISTS idx_quotes_tenant ON quotes(tenant_id);
+CREATE TABLE IF NOT EXISTS audit_events(id BIGSERIAL PRIMARY KEY,tenant_id UUID,quote_id UUID,event TEXT NOT NULL,actor TEXT,data JSONB NOT NULL DEFAULT '{}'::jsonb,created_at TIMESTAMPTZ NOT NULL DEFAULT now());
+CREATE INDEX IF NOT EXISTS idx_audit_tenant ON audit_events(tenant_id);
