@@ -31,3 +31,24 @@ def analyze_draft(
             schema_name="securequote_recommendation",
         )
     )
+
+
+QUOTE_INPUT_FIELDS = ("job_type", "service_location", "preferred_timing", "scope_summary", "notes")
+
+
+def suggest_price(
+    payload: dict, provider: StructuredAIProvider
+) -> StructuredGenerationResult[SecureQuoteAIRecommendation]:
+    """Review-only price suggestion for a saved production quote.
+
+    Customer name, email, and phone are never sent to the AI provider.
+    """
+    input_data = {key: (payload.get(key) or None) for key in QUOTE_INPUT_FIELDS}
+    return provider.generate(
+        StructuredGenerationRequest(
+            instructions=INSTRUCTIONS,
+            input_data=input_data,
+            output_model=SecureQuoteAIRecommendation,
+            schema_name="securequote_recommendation",
+        )
+    )
