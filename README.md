@@ -6,16 +6,24 @@ AI recommends. Policy evaluates. Humans authorize final business actions.
 
 Sponsored by CREIGNIFICENT LLC.
 
-## Implemented
+## Production app (Vercel entrypoint: `api/index.py` → `applications/securequote_lite/production_app.py`)
 
-- Screen 1: validated customer/job intake and optional photo/document metadata.
-- Screen 2: explicit OpenAI or Gemini analysis through an application-neutral gateway, validated structured recommendations, confidence/risk policy, preserved original recommendation, separate human edits, and approval/rejection/more-information states.
-- Server-controlled state transitions and application-specific JSONL audit events.
-- No automatic provider fallback and no fabricated AI output.
+Implemented:
+- Business owner signup/login (12+ character passwords, signed sessions; sign-in is refused if `SECUREQUOTE_SESSION_SECRET` is missing or under 32 characters).
+- Each business sees only its own quotes, audit history, and billing.
+- Quote intake, optional AI "Suggest a price" (hidden when no AI provider is configured; customer contact details are never sent to AI), owner sets and approves the final price.
+- Quote email with a private customer link that expires (default 30 days). Failed emails mark the quote `EMAIL_FAILED` with a retry.
+- Customer Accept / Decline page. Accept records acceptance and emails the owner. Customer payment through Stripe is off by default (`SECUREQUOTE_CUSTOMER_PAYMENTS_ENABLED=false`).
+- $49/month Stripe subscription: Subscribe button, success/cancel pages, free trial (default 3 quotes), webhooks for checkout completion, subscription updated/deleted, and failed invoices. Webhook events are only marked handled after they process successfully.
+- Draft Terms, Privacy, and Refund & Cancellation pages (`/terms`, `/privacy`, `/refunds`) — review before launch.
 
-## Not implemented
+Not implemented yet: Stripe Connect (paying each business directly), password reset, login rate limiting.
 
-Screen 3, customer quote delivery, payment processing, Stripe, Resend, Firebase identity, durable persistence, and production authentication for internal review are not implemented. The current process-local draft store loses data on restart. Do not expose review/approval routes publicly without a trusted authentication and authorization layer.
+See `LAUNCH_CHECKLIST.md` for the exact setup needed to go live and `.env.example` for every setting.
+
+## Legacy prototype
+
+`applications/securequote_lite/app.py` is the original Screens 1–2 prototype with a process-local draft store. It has no authentication. Do not expose it publicly.
 
 ## Local setup
 
@@ -45,6 +53,9 @@ For Gemini free-tier development, use non-sensitive test data. Customer name, em
 
 ```powershell
 python -m unittest discover -s applications/securequote_lite/tests -v
+# Postgres-backed tests run when TEST_DATABASE_URL points at a disposable database:
+$env:TEST_DATABASE_URL="postgresql+psycopg://postgres:postgres@localhost:5432/securequote_test"
+python -m unittest discover -s tests -v
 python -m compileall -q applications src scripts
 python -m ruff check applications src tests
 ```
